@@ -41,10 +41,13 @@
       "requirement": "optional"
     },
     {
+<<<<<<< HEAD
       "name": "/actions/default/in/TouchPadTouch",
       "type": "vector2"
     },
     {
+=======
+>>>>>>> 55675ce8962e0462ec00fd988c0ad36c809c8218
       "name": "/actions/default/out/Haptic",
       "type": "vibration"
     },
