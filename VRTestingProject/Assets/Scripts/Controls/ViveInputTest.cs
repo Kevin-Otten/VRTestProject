@@ -14,6 +14,7 @@ public class ViveInputTest : MonoBehaviour
     public bool touchPadTouch;
     public bool touchPadClick;
     public Vector2 touchpadValue;
+
     public bool squeezedTrigger;
     public float triggerValue;
 
