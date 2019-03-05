@@ -14,7 +14,7 @@ public class Controls_Interaction : MonoBehaviour
     FixedJoint myJoint;
     private SteamVR_Behaviour_Pose pose;
     Interactables currentInteractable;
-    List<Interactables> allTouchedOjects = new List<Interactables>();
+    public List<Interactables> allTouchedOjects = new List<Interactables>();
 
     void Awake()
     {
