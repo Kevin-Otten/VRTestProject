@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Interactables : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public Controls_Interaction activeHand;
+
     void Start()
     {
         if (gameObject.tag != "Interactable")
         {
            gameObject.tag = "Interactable"; 
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
