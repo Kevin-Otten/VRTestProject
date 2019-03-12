@@ -32,15 +32,17 @@ public class Controls_Movement : MonoBehaviour
 
     void Move()
     {
-        //Get next position
-        Vector3 nextPosition = ControlsManager.instance.VR_Camera.right * (touchpadValue.x * ControlsManager.instance.movementSpeed) + ControlsManager.instance.VR_Camera.forward * (touchpadValue.y * ControlsManager.instance.movementSpeed) * Time.deltaTime;
+        //Define next position
+        Vector3 side = ControlsManager.instance.VR_Camera.right * touchpadValue.x * ControlsManager.instance.movementSpeed * Time.deltaTime;
+        Vector3 forward = ControlsManager.instance.VR_Camera.forward * touchpadValue.y * ControlsManager.instance.movementSpeed * Time.deltaTime;
+        Vector3 nextPosition = forward + side;
         nextPosition.y = 0;
-        nextPosition += ControlsManager.instance.VR_Camera.transform.position;
 
         //Set position to next position
         if (touchPadClick)
         {
-            ControlsManager.instance.VR_CameraRig.position += nextPosition;
+            Debug.Log(nextPosition);
+            ControlsManager.instance.VR_CameraRig.localPosition += nextPosition;
         }
     }
 }
