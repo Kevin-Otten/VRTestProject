@@ -26,11 +26,11 @@ public class Controls_Movement : MonoBehaviour
         if (touchPadTouch)
         {
             touchpadValue = touchPadAction.GetAxis(pose.inputSource);
-            Move();
+            SmoothMove();
         }
     }
 
-    void Move()
+    void SmoothMove()
     {
         //Define next position
         Vector3 side = ControlsManager.instance.VR_Camera.right * touchpadValue.x * ControlsManager.instance.movementSpeed * Time.deltaTime;
@@ -44,5 +44,10 @@ public class Controls_Movement : MonoBehaviour
             Debug.Log(nextPosition);
             ControlsManager.instance.VR_CameraRig.localPosition += nextPosition;
         }
+    }
+
+    void TeleportMove()
+    {
+
     }
 }
