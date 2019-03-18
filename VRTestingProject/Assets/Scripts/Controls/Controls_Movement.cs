@@ -13,9 +13,13 @@ public class Controls_Movement : MonoBehaviour
     public Vector2 touchpadValue;
     public bool touchPadClick;
 
+    private bool smoothMovement;
+    public GameObject teleportParticle;
+
     void Start()
     {
         pose = GetComponent<SteamVR_Behaviour_Pose>();
+        teleportParticle = Instantiate(teleportParticle, Vector3.zero, Quaternion.identity);
     }
 
     void Update()
@@ -25,8 +29,20 @@ public class Controls_Movement : MonoBehaviour
 
         if (touchPadTouch)
         {
-            touchpadValue = touchPadAction.GetAxis(pose.inputSource);
-            SmoothMove();
+            if (smoothMovement)
+            {
+                touchpadValue = touchPadAction.GetAxis(pose.inputSource);
+                SmoothMove();
+            }
+            else
+            {
+                teleportParticle.SetActive(true);
+                TeleportMove();
+            }
+        }
+        else
+        {
+            teleportParticle.SetActive(false);
         }
     }
 
@@ -48,6 +64,16 @@ public class Controls_Movement : MonoBehaviour
 
     void TeleportMove()
     {
-
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.forward,out hit, float.MaxValue))
+        {
+            //place teleport particle on hit position
+            teleportParticle.transform.position = hit.point;
+            if (touchPadClick)
+            {
+                //Move player to hit position
+                ControlsManager.instance.VR_CameraRig.localPosition = hit.point;
+            }
+        }
     }
 }
