@@ -1,10 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 
 public class Controls_Movement : MonoBehaviour
 {
+    enum MovementTypes
+    {
+        Smooth,
+        Teleport
+    }
+
     private SteamVR_Behaviour_Pose pose;
 
     //Smooth\Teleportation movement values
@@ -13,7 +20,7 @@ public class Controls_Movement : MonoBehaviour
     public Vector2 touchpadValue;
     public bool touchPadClick;
 
-    private bool smoothMovement;
+    private MovementTypes movementTypes;
     public GameObject teleportParticle;
 
     void Start()
@@ -29,15 +36,16 @@ public class Controls_Movement : MonoBehaviour
 
         if (touchPadTouch)
         {
-            if (smoothMovement)
+            switch (movementTypes)
             {
-                touchpadValue = touchPadAction.GetAxis(pose.inputSource);
-                SmoothMove();
-            }
-            else
-            {
-                teleportParticle.SetActive(true);
-                TeleportMove();
+                case MovementTypes.Smooth:
+                    touchpadValue = touchPadAction.GetAxis(pose.inputSource);
+                    SmoothMove();
+                    break;
+                case MovementTypes.Teleport:
+                    teleportParticle.SetActive(true);
+                    TeleportMove();
+                    break;
             }
         }
         else

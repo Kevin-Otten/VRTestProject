@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
@@ -39,16 +40,21 @@ public class Controls_Interaction : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (!other.gameObject.CompareTag("Interactable"))
+        if (!other.gameObject.CompareTag("Interactable") || !other.gameObject.CompareTag("Climbable"))
         {
             return;
         }
         allTouchedOjects.Add(other.gameObject.GetComponent<Interactables>());
+
+        if (other.gameObject.CompareTag("Climbable"))
+        {
+            
+        }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (!other.gameObject.CompareTag("Interactable"))
+        if (!other.gameObject.CompareTag("Interactable") || !other.gameObject.CompareTag("Climbable"))
         {
             return;
         }
@@ -120,5 +126,29 @@ public class Controls_Interaction : MonoBehaviour
         myJoint.connectedBody = null;
         currentInteractable.activeHand = null;
         currentInteractable = null;
+    }
+
+    void Climb()
+    {
+        Vector3 origHandPos = transform.position;
+
+        //Check for closest object
+        if (allTouchedOjects.Count != 0)
+        {
+            currentInteractable = NearestInteractable();
+        }
+        else
+        {
+            //return if list of objects is empty
+            return;
+        }
+
+        //decide new height position by using the origHandPos compared to the hands current position
+        Vector3 newPos;
+
+        //newPos = origHandPos
+
+        //Set position of the Camera rig to new height
+        //ControlsManager.instance.VR_CameraRig.transform.position
     }
 }
