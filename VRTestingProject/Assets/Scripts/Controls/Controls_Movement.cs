@@ -6,7 +6,7 @@ using Valve.VR;
 
 public class Controls_Movement : MonoBehaviour
 {
-    enum MovementTypes
+    public enum MovementTypes
     {
         Smooth,
         Teleport
@@ -15,18 +15,22 @@ public class Controls_Movement : MonoBehaviour
     private SteamVR_Behaviour_Pose pose;
 
     //Smooth\Teleportation movement values
+    public MovementTypes movementTypes;
     public SteamVR_Action_Vector2 touchPadAction;
     public bool touchPadTouch;
     public Vector2 touchpadValue;
     public bool touchPadClick;
 
-    private MovementTypes movementTypes;
-    public GameObject teleportParticle;
+    //Teleport Specific
+    private bool recentlyTeleported;
+    private LineRenderer lineRenderer;
+
+    
 
     void Start()
     {
         pose = GetComponent<SteamVR_Behaviour_Pose>();
-        teleportParticle = Instantiate(teleportParticle, Vector3.zero, Quaternion.identity);
+        lineRenderer = GetComponent<LineRenderer>();
     }
 
     void Update()
@@ -43,14 +47,23 @@ public class Controls_Movement : MonoBehaviour
                     SmoothMove();
                     break;
                 case MovementTypes.Teleport:
-                    teleportParticle.SetActive(true);
+                    ControlsManager.instance.teleportParticle.SetActive(true);
                     TeleportMove();
                     break;
             }
         }
-        else
+        else if (ControlsManager.instance.teleportParticle != null && movementTypes == MovementTypes.Teleport)
         {
-            teleportParticle.SetActive(false);
+            if (ControlsManager.instance.teleportParticle.activeSelf)
+            {
+                
+                ControlsManager.instance.teleportParticle.SetActive(false);
+            }
+
+            if (lineRenderer.enabled)
+            {
+                lineRenderer.enabled = false;
+            }
         }
     }
 
@@ -73,15 +86,40 @@ public class Controls_Movement : MonoBehaviour
     void TeleportMove()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.forward,out hit, float.MaxValue))
+        if (Physics.Raycast(transform.localPosition, transform.forward,out hit, float.MaxValue))
         {
+            Debug.DrawRay(transform.position, transform.forward, Color.red);
+            DrawTeleportLine(hit);
             //place teleport particle on hit position
-            teleportParticle.transform.position = hit.point;
-            if (touchPadClick)
+            ControlsManager.instance.teleportParticle.transform.position = hit.point;
+            ControlsManager.instance.teleportParticle.transform.rotation = Quaternion.LookRotation(hit.normal);
+            if (touchPadClick && !recentlyTeleported)
             {
                 //Move player to hit position
+                recentlyTeleported = true;
+                Invoke("ResetTeleportTimer",1);
                 ControlsManager.instance.VR_CameraRig.localPosition = hit.point;
             }
         }
+        else
+        {
+            lineRenderer.enabled = false;
+        }
+    }
+
+    void DrawTeleportLine(RaycastHit hit)
+    {
+        if (lineRenderer.enabled == false)
+        {
+            lineRenderer.enabled = true;
+            
+            lineRenderer.SetPosition(0,transform.position);
+            lineRenderer.SetPosition(1,hit.point);
+        }
+    }
+
+    void ResetTeleportTimer()
+    {
+        recentlyTeleported = false;
     }
 }
