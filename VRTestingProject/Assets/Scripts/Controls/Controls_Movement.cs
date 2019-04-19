@@ -23,14 +23,15 @@ public class Controls_Movement : MonoBehaviour
 
     //Teleport Specific
     private bool recentlyTeleported;
-    private LineRenderer lineRenderer;
+
+
+    public static Controls_Movement activeHand;
 
     
 
     void Start()
     {
         pose = GetComponent<SteamVR_Behaviour_Pose>();
-        lineRenderer = GetComponent<LineRenderer>();
     }
 
     void Update()
@@ -40,29 +41,40 @@ public class Controls_Movement : MonoBehaviour
 
         if (touchPadTouch)
         {
-            switch (movementTypes)
+            touchpadValue = touchPadAction.GetAxis(pose.inputSource);
+            if (touchpadValue != Vector2.zero)
             {
-                case MovementTypes.Smooth:
-                    touchpadValue = touchPadAction.GetAxis(pose.inputSource);
-                    SmoothMove();
-                    break;
-                case MovementTypes.Teleport:
-                    ControlsManager.instance.teleportParticle.SetActive(true);
-                    TeleportMove();
-                    break;
+                if (activeHand == this || activeHand == null)
+                {
+                    if (activeHand == null)
+                    {
+                        activeHand = this; 
+                    }
+                    switch (movementTypes)
+                    {
+                        case MovementTypes.Smooth:
+                            SmoothMove();
+                            break;
+                        case MovementTypes.Teleport:
+                            TeleportMove();
+                            break;
+                    }
+                }
+                else if(activeHand.touchpadValue == Vector2.zero)
+                {
+                    activeHand = null;
+                }
             }
         }
-        else if (ControlsManager.instance.teleportParticle != null && movementTypes == MovementTypes.Teleport)
+        else
         {
-            if (ControlsManager.instance.teleportParticle.activeSelf)
+            activeHand = null;
+            if (ControlsManager.instance.teleportParticle != null && movementTypes == MovementTypes.Teleport)
             {
-                
-                ControlsManager.instance.teleportParticle.SetActive(false);
-            }
-
-            if (lineRenderer.enabled)
-            {
-                lineRenderer.enabled = false;
+                if (ControlsManager.instance.teleportParticle.activeSelf)
+                {
+                    ControlsManager.instance.teleportParticle.SetActive(false);
+                }
             }
         }
     }
@@ -86,13 +98,15 @@ public class Controls_Movement : MonoBehaviour
     void TeleportMove()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.localPosition, transform.forward,out hit, float.MaxValue))
+        if (Physics.Raycast(transform.position, transform.forward,out hit, float.MaxValue))
         {
+            ControlsManager.instance.teleportParticle.SetActive(true);
             Debug.DrawRay(transform.position, transform.forward, Color.red);
             DrawTeleportLine(hit);
-            //place teleport particle on hit position
+
             ControlsManager.instance.teleportParticle.transform.position = hit.point;
             ControlsManager.instance.teleportParticle.transform.rotation = Quaternion.LookRotation(hit.normal);
+
             if (touchPadClick && !recentlyTeleported)
             {
                 //Move player to hit position
@@ -103,23 +117,26 @@ public class Controls_Movement : MonoBehaviour
         }
         else
         {
-            lineRenderer.enabled = false;
+            if (ControlsManager.instance.teleportParticle.activeSelf)
+            {
+                ControlsManager.instance.teleportParticle.SetActive(false);
+            }
         }
     }
 
     void DrawTeleportLine(RaycastHit hit)
     {
-        if (lineRenderer.enabled == false)
-        {
-            lineRenderer.enabled = true;
-            
-            lineRenderer.SetPosition(0,transform.position);
-            lineRenderer.SetPosition(1,hit.point);
-        }
+
     }
 
     void ResetTeleportTimer()
     {
         recentlyTeleported = false;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(transform.position,0.1f);
     }
 }
